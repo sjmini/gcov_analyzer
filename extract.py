@@ -12,6 +12,9 @@ def main():
         regex_compile_cover = 0.0
         regex_compile_flag = False
 
+        not_exec_func_branch_cnt = 0
+        not_exec_func_branch_flag = False
+
         print "filename is " + filename
 
 	f = open(filename, 'r')
@@ -20,9 +23,19 @@ def main():
 		if not line: break
 	
 		tmp = line.split(" ")
-		#if (tmp[0] == "function") and (tmp[3] == "2"):
 		if (tmp[0] == "function"):
-                        #print "in function:"
+                        if (tmp[3] == "0"):
+                            if not_exec_func_branch_flag == True:
+                                print "not_exec_func_branch_cnt: " + str(not_exec_func_branch_cnt) + " branches\n"
+
+                            print "func is not called :" + tmp[1]
+                            not_exec_func_branch_flag = True
+                            not_exec_func_branch_cnt = 0
+                        else:
+                            if not_exec_func_branch_flag == True:
+                                print "not_exec_func_branch_cnt: " + str(not_exec_func_branch_cnt) + " branches\n"
+                            not_exec_func_branch_flag = False
+
                         if flag == False:
 				branch_total = 0
                                 if (tmp[1] == "regex_compile"):
@@ -45,7 +58,9 @@ def main():
                                 branch_total = 0
 				#print "function name: " + tmp[1]
 		elif (tmp[0] == "branch"):
-                       # print "in branch"
+                        if not_exec_func_branch_flag == True:
+                            not_exec_func_branch_cnt += 1
+
                         if regex_compile_flag == True:
                             regex_compile_total += 1
                             if (line.find(' 0%') != -1):
@@ -57,7 +72,7 @@ def main():
                                 print "<regex_compile function: " + line + "executed>"
                             #print "HSJ : " + tmp[3]
 		        branch_total += 1
-		elif (tmp[4] == "#####:"):
+		elif ((len(tmp) > 4) and tmp[4] == "#####:"):
                         st_total += 1
                         #print "####" + tmp[4]
                 elif (len(tmp) > 8) and re.match('[0-9+:]', tmp[8]):
